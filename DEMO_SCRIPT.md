@@ -2,7 +2,7 @@
 
 Use this flow for the required `3-5` minute demo:
 
-1. Introduce the project as a multimodal assistant that combines GPT-2, Stable Diffusion, and human feedback.
+1. Introduce the project as a multimodal assistant that combines an instruction-following LLM, Stable Diffusion, and human feedback.
 2. Enter a shared prompt such as `A futuristic smart city with flying cars`.
 3. Click `Generate Text and Image`.
 4. Show the three generated text responses and explain that they come from the LLM.

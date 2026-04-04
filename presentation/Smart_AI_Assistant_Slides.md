@@ -4,7 +4,7 @@
 
 - Smart AI Assistant with Human Feedback (Multimodal)
 - Course project on LLMs, diffusion models, and RLHF concepts
-- Built with GPT-2, Stable Diffusion, Streamlit, and SQLite
+- Built with FLAN-T5, Stable Diffusion, Streamlit, and SQLite
 
 ## Slide 2 - Project Objective
 
@@ -24,7 +24,7 @@
 
 ```mermaid
 flowchart LR
-    A["User Prompt"] --> B["GPT-2 Text Generator"]
+    A["User Prompt"] --> B["Instruction LLM Text Generator"]
     A --> C["Stable Diffusion Image Generator"]
     B --> D["3 Candidate Responses"]
     D --> E["User Ratings + Best Choice"]
@@ -35,7 +35,7 @@ flowchart LR
 
 ## Slide 5 - Models Used
 
-- GPT-2 for text generation through Hugging Face Transformers
+- FLAN-T5 for text generation through Hugging Face Transformers
 - Stable Diffusion v1.5 for image generation through Hugging Face Diffusers
 - Pretrained models were used because the assignment does not require training from scratch
 - The same prompt is shared across both models for multimodal consistency
@@ -52,7 +52,7 @@ flowchart LR
 
 - Streamlit UI for easy live demo
 - Python package split into:
-  - `generation.py` for GPT-2 and Stable Diffusion
+  - `generation.py` for the text model and Stable Diffusion
   - `storage.py` for feedback persistence and ranking
   - `config.py` for model and runtime settings
 - SQLite database stores responses and feedback entries
@@ -69,7 +69,7 @@ flowchart LR
 ## Slide 9 - Challenges and Observations
 
 - Stable Diffusion requires significant compute, especially without a GPU
-- GPT-2 is not instruction-tuned, so prompt templating helps response quality
+- Instruction-tuned text models produce cleaner outputs for this task than base autocomplete-style models
 - Human ratings can be subjective, but they still provide a useful reward signal
 - The same prompt must be visual and descriptive to work across text and image generation
 

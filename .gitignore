@@ -1,0 +1,23 @@
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local app data
+data/
+outputs/
+
+# Notebook runtime artifacts
+notebooks/project_outputs/
+
+# IDE files
+.vscode/
+.idea/

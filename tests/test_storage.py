@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from smart_ai_assistant.storage import FeedbackStore
+from smart_ai_assistant.generation import _quality_score
 
 
 class FeedbackStoreTests(unittest.TestCase):
@@ -61,6 +62,15 @@ class FeedbackStoreTests(unittest.TestCase):
                 ratings_by_response_id={responses[0].id: 6},
                 best_response_id=responses[0].id,
             )
+
+
+class GenerationQualityTests(unittest.TestCase):
+    def test_quality_score_prefers_relevant_scene_description(self) -> None:
+        prompt = "A robot helping humans in daily life"
+        strong = "A friendly robot carries groceries for an older man while guiding him across a bright city sidewalk. The scene feels practical, calm, and easy to imagine."
+        weak = '"" Robot: An Indian girl making baby pets'
+
+        self.assertGreater(_quality_score(prompt, strong), _quality_score(prompt, weak))
 
 
 if __name__ == "__main__":

@@ -45,13 +45,15 @@ def _initialize_session_state() -> None:
             st.session_state[key] = value
 
 
-def _render_sidebar() -> tuple[str, str, int, int, float, int]:
+def _render_sidebar() -> tuple[str, str, int, int, int, int, float, int]:
     with st.sidebar:
         st.header("Configuration")
         text_model_id = st.text_input("Text model", value=config.text_model_id)
         image_model_id = st.text_input("Image model", value=config.image_model_id)
         response_count = st.slider("Number of text responses", min_value=2, max_value=3, value=config.text_response_count)
-        max_new_tokens = st.slider("Max new tokens per response", min_value=40, max_value=180, value=config.text_max_new_tokens, step=10)
+        max_new_tokens = st.slider("Max new tokens per response", min_value=30, max_value=120, value=config.text_max_new_tokens, step=5)
+        candidate_pool_size = st.slider("Candidate pool size", min_value=6, max_value=18, value=config.text_candidate_pool_size, step=3)
+        min_words = st.slider("Minimum response words", min_value=8, max_value=20, value=config.text_min_words)
         inference_steps = st.slider(
             "Diffusion steps",
             min_value=10,
@@ -74,8 +76,11 @@ def _render_sidebar() -> tuple[str, str, int, int, float, int]:
         st.metric("Responses stored", metrics["response_count"])
         st.metric("Feedback entries", metrics["feedback_count"])
         st.caption("The ranked feedback table acts as the RLHF reward-model simulation.")
+        with st.expander("Prompt Tips"):
+            st.write("Use concrete visual prompts such as 'A robot helping humans in daily life' or 'An astronaut walking on Mars at sunset'.")
+            st.write("Avoid abstract prompts like 'Explain machine learning' because they are weak for image generation and small text models.")
 
-    return text_model_id, image_model_id, response_count, max_new_tokens, guidance_scale, inference_steps
+    return text_model_id, image_model_id, response_count, max_new_tokens, candidate_pool_size, min_words, guidance_scale, inference_steps
 
 
 def _handle_generation(
@@ -84,6 +89,8 @@ def _handle_generation(
     image_model_id: str,
     response_count: int,
     max_new_tokens: int,
+    candidate_pool_size: int,
+    min_words: int,
     guidance_scale: float,
     inference_steps: int,
 ) -> None:
@@ -95,6 +102,8 @@ def _handle_generation(
             prompt=prompt,
             response_count=response_count,
             max_new_tokens=max_new_tokens,
+            candidate_pool_size=candidate_pool_size,
+            min_words=min_words,
         )
 
     saved_responses = store.save_generated_responses(prompt, text_responses)
@@ -118,11 +127,11 @@ def main() -> None:
 
     st.title("Smart AI Assistant with Human Feedback")
     st.write(
-        "Enter one multimodal prompt to generate multiple GPT-2 responses, collect human feedback, "
+        "Enter one multimodal prompt to generate multiple LLM responses, collect human feedback, "
         "rank the responses like a simplified RLHF loop, and generate a matching Stable Diffusion image."
     )
 
-    text_model_id, image_model_id, response_count, max_new_tokens, guidance_scale, inference_steps = _render_sidebar()
+    text_model_id, image_model_id, response_count, max_new_tokens, candidate_pool_size, min_words, guidance_scale, inference_steps = _render_sidebar()
 
     prompt = st.text_input(
         "Shared prompt for text and image generation",
@@ -141,6 +150,8 @@ def main() -> None:
                     image_model_id=image_model_id,
                     response_count=response_count,
                     max_new_tokens=max_new_tokens,
+                    candidate_pool_size=candidate_pool_size,
+                    min_words=min_words,
                     guidance_scale=guidance_scale,
                     inference_steps=inference_steps,
                 )

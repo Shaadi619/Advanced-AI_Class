@@ -2,7 +2,7 @@
 
 This project implements the full assignment workflow from the rubric:
 
-- Generate `2-3` text responses from a pretrained LLM (`GPT-2` by default).
+- Generate `2-3` text responses from a pretrained instruction-following LLM (`google/flan-t5-base` by default).
 - Collect human feedback through ratings and a best-response choice.
 - Rank responses using stored feedback to simulate an RLHF reward model.
 - Generate an image from the same prompt using a Stable Diffusion model.
@@ -13,7 +13,7 @@ This project implements the full assignment workflow from the rubric:
 
 | Rubric Item | How this project covers it |
 | --- | --- |
-| Text Generation (LLM) | `TextGenerationService` loads GPT-2 and produces three sampled responses for one prompt. |
+| Text Generation (LLM) | `TextGenerationService` loads a pretrained Hugging Face LLM and produces three sampled responses for one prompt. |
 | RLHF Simulation (Text Feedback) | The app stores ratings and best-response votes in SQLite, then ranks responses with a reward-style proxy. |
 | Image Generation (Diffusion) | `ImageGenerationService` uses Stable Diffusion to create one image from the same prompt. |
 | Functionality and Code Quality | The project is separated into config, generation, storage, app UI, tests, and documentation. |
@@ -42,10 +42,10 @@ This project implements the full assignment workflow from the rubric:
 
 ## Models Used
 
-- Text model: `gpt2`
+- Text model: `google/flan-t5-base`
 - Image model: `runwayml/stable-diffusion-v1-5`
 
-You can change either model in the Streamlit sidebar if your environment needs a lighter or faster alternative.
+You can change either model in the Streamlit sidebar if your environment needs a different or larger alternative.
 
 ## Setup
 
@@ -70,7 +70,7 @@ The notebook is self-contained and follows the same project logic:
 
 1. Install dependencies in Colab
 2. Set one shared prompt
-3. Generate 3 GPT-2 responses
+3. Generate 3 instruction-following LLM responses
 4. Generate 1 Stable Diffusion image
 5. Enter ratings and a best-response choice
 6. Display the RLHF-style ranking table
@@ -84,10 +84,21 @@ Stable Diffusion is GPU-heavy. For the smoothest demo:
 
 The code supports `cuda`, `mps`, and `cpu`, but image generation on CPU will be slow.
 
+## Text Quality Improvements
+
+The text pipeline now uses several quality controls to produce cleaner responses:
+
+- An instruction-following model is used by default.
+- The prompt is rewritten into short scene-description tasks.
+- Multiple prompt variants are generated for diversity.
+- A larger candidate pool is sampled, then ranked automatically.
+- Low-quality outputs are filtered using simple heuristics for length, overlap with the prompt, coherence, and repeated junk text.
+- Safe fallback responses are used only if the model still fails to produce enough usable answers.
+
 ## How the RLHF Simulation Works
 
 1. The user enters a single prompt that works for both text and image generation.
-2. GPT-2 generates multiple candidate responses.
+2. The text model generates multiple candidate responses.
 3. The user rates each response from `1-5` and selects the best one.
 4. Feedback is stored in `data/feedback.db`.
 5. The app ranks responses using:
@@ -114,11 +125,12 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 - Source code: Streamlit app plus modular Python package
 - Colab notebook: [Smart_AI_Assistant_Colab.ipynb](/Users/shaads/Desktop/advanced-AI/notebooks/Smart_AI_Assistant_Colab.ipynb)
 - Presentation: [presentation/Smart_AI_Assistant_Slides.md](/Users/shaads/Desktop/advanced-AI/presentation/Smart_AI_Assistant_Slides.md)
+- Presentation-ready script: [presentation/Final_Presentation_Script.md](/Users/shaads/Desktop/advanced-AI/presentation/Final_Presentation_Script.md)
 - Demo guidance: see the final section of the slide deck for a short live demo flow
 
 ## Possible Questions During Presentation
 
-- Why use GPT-2 instead of training from scratch?
+- Why use a pretrained instruction-following model instead of training from scratch?
 - Why is this called an RLHF simulation and not full RLHF?
 - How is the reward signal represented in the system?
 - What are the limitations of using average ratings and votes?
